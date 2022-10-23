@@ -3,8 +3,9 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 
-const loginRoute = require("./routes/login");
+const usersRoute = require("./routes/users");
 const booksRoute = require("./routes/books");
+const HttpError = require("./models/http-error");
 
 dotenv.config();
 
@@ -18,8 +19,17 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //Middlewares
-app.use("/api/login", loginRoute);
+app.use("/api/users", usersRoute);
 app.use("/api/books", booksRoute);
+
+//Error Middleware function
+app.use((error, req, res, next) => {
+  if (res.headerSent) {
+    return next(error);
+  }
+  res.status(error.code || 500);
+  res.json({ message: error.message || "An unknown error occurred!" });
+});
 
 //Listener
 const PORT = process.env.PORT || 8000;
