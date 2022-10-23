@@ -1,8 +1,9 @@
 const { v4: uuidv4 } = require("uuid");
+const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 
-const DUMMY_BOOKS = [
+let DUMMY_BOOKS = [
   {
     id: "b1",
     title: "The Green Mile",
@@ -35,7 +36,7 @@ const DUMMY_BOOKS = [
   },
 ];
 
-const DUMMY_USER_BOOKS = [
+const DUMMY_USERS_BOOKS = [
   {
     id: "u1",
     name: "Fernando Fanelli",
@@ -48,6 +49,10 @@ const DUMMY_USER_BOOKS = [
   },
 ];
 
+const getBooks = (req, res, next) => {
+  res.json({ DUMMY_BOOKS });
+};
+
 const getBookById = (req, res, next) => {
   const bookId = req.params.bid;
 
@@ -56,7 +61,9 @@ const getBookById = (req, res, next) => {
   });
 
   if (!book) {
-    throw new HttpError("Could not find a book for the provided id.", 404);
+    return next(
+      new HttpError("Could not find a book for the provided id.", 404)
+    );
   }
 
   res.json({ book });
@@ -65,11 +72,11 @@ const getBookById = (req, res, next) => {
 const getBookByUserId = (req, res, next) => {
   const userId = req.params.uid;
 
-  const user = DUMMY_USER_BOOKS.find((u) => {
+  const user = DUMMY_USERS_BOOKS.find((u) => {
     return u.id === userId;
   });
 
-  if (!user) {
+  if (!user || user.length === 0) {
     return next(
       new HttpError("Could not find a user for the provided user id.", 404)
     );
@@ -79,7 +86,7 @@ const getBookByUserId = (req, res, next) => {
     return b.id === user.bookId;
   });
 
-  if (!book) {
+  if (!book || book.length === 0) {
     return next(
       new HttpError("Could not find a book for the provided user id.", 404)
     );
@@ -89,6 +96,13 @@ const getBookByUserId = (req, res, next) => {
 };
 
 const createBook = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+
   const { title, description, creator, language, genre, publicationDate } =
     req.body;
   const createdBook = {
@@ -106,6 +120,40 @@ const createBook = (req, res, next) => {
   res.status(201).json({ book: createdBook });
 };
 
+const updateBook = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return next(
+      new HttpError("Invalid inputs passed, please check your data.", 422)
+    );
+  }
+
+  const { title, description } = req.body;
+  const bookId = req.params.bid;
+
+  const updatedBook = { ...DUMMY_BOOKS.find((b) => b.id === bookId) };
+  const bookIndex = DUMMY_BOOKS.findIndex((b) => b.id === bookId);
+  updatedBook.title = title;
+  updatedBook.description = description;
+
+  DUMMY_BOOKS[bookIndex] = updatedBook;
+
+  res.status(200).json({ book: updatedBook });
+};
+
+const deleteBook = (req, res, next) => {
+  const bookId = req.params.bid;
+  if (!DUMMY_BOOKS.find((b) => b.id === bookId)) {
+    return next(new HttpError("Could not find a place for that id.", 404));
+  }
+  DUMMY_BOOKS = DUMMY_BOOKS.filter((b) => b.id !== bookId);
+
+  res.status(200).json({ message: "Deleted Book." });
+};
+
+exports.getBooks = getBooks;
 exports.getBookById = getBookById;
 exports.getBookByUserId = getBookByUserId;
 exports.createBook = createBook;
+exports.updateBook = updateBook;
+exports.deleteBook = deleteBook;
