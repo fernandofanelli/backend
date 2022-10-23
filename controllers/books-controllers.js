@@ -8,6 +8,7 @@ const DUMMY_BOOKS = [
     title: "The Green Mile",
     description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
     creator: "Stephen King",
+    creatorId: "1",
     language: "en",
     genre: "Dark Fantasy",
     publicationDate: "1996",
@@ -17,6 +18,7 @@ const DUMMY_BOOKS = [
     title: "Pet Sematary",
     description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
     creator: "Stephen King",
+    creatorId: "1",
     language: "en",
     genre: "Horror",
     publicationDate: "1983",
@@ -26,14 +28,28 @@ const DUMMY_BOOKS = [
     title: "The Shining",
     description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
     creator: "Stephen King",
+    creatorId: "1",
     language: "en",
     genre: "Horror",
     publicationDate: "1977",
   },
 ];
 
+const DUMMY_USER_BOOKS = [
+  {
+    id: "u1",
+    name: "Fernando Fanelli",
+    bookId: "b1",
+  },
+  {
+    id: "u2",
+    name: "Agus Bondiola",
+    bookId: "b2",
+  },
+];
+
 const getBookById = (req, res, next) => {
-  const bookId = req.params.bid; // { bid: 'b1' }
+  const bookId = req.params.bid;
 
   const book = DUMMY_BOOKS.find((b) => {
     return b.id === bookId;
@@ -49,8 +65,18 @@ const getBookById = (req, res, next) => {
 const getBookByUserId = (req, res, next) => {
   const userId = req.params.uid;
 
+  const user = DUMMY_USER_BOOKS.find((u) => {
+    return u.id === userId;
+  });
+
+  if (!user) {
+    return next(
+      new HttpError("Could not find a user for the provided user id.", 404)
+    );
+  }
+
   const book = DUMMY_BOOKS.find((b) => {
-    return b.creator === userId;
+    return b.id === user.bookId;
   });
 
   if (!book) {
