@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const { check } = require("express-validator");
+const users = require("../services/users");
 
 const usersControllers = require("../controllers/users-controllers");
 
@@ -19,5 +20,14 @@ router.post(
   usersControllers.signUp
 );
 router.post("/login", usersControllers.login);
+
+router.get("/db/user", async function (req, res, next) {
+  try {
+    res.json(await users.getMultiple(req.query.page));
+  } catch (err) {
+    console.error(`Error while getting quotes `, err.message);
+    next(err);
+  }
+});
 
 module.exports = router;

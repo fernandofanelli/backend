@@ -22,18 +22,21 @@ const DUMMY_USERS = [
     name: "Fernando Fanelli",
     email: "f_ferg@hotmail.com",
     password: "fercha",
+    image: "/images/u1.jpeg",
   },
   {
     id: "u2",
     name: "Agustin Bondiola",
     email: "agus@gmail.com",
     password: "bondiola",
+    image: "/images/u2.jpeg",
   },
   {
     id: "u3",
     name: "Santiago Barbier",
     email: "zapa@gmail.com",
     password: "zapato",
+    image: "/images/u3.jpeg",
   },
 ];
 
@@ -55,6 +58,7 @@ const getUserById = (req, res, next) => {
     );
   }
 
+  //Delete password retrival from here
   res.json({ user });
 };
 
