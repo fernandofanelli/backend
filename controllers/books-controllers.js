@@ -8,31 +8,73 @@ let DUMMY_BOOKS = [
     id: "b1",
     title: "The Green Mile",
     description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    creator: "Stephen King",
-    creatorId: "1",
+    image: "/images/sk1.jpeg",
+    author: "Stephen King",
+    authorId: "1",
     language: "en",
     genre: "Dark Fantasy",
     publicationDate: "1996",
+    available: true,
   },
   {
     id: "b2",
     title: "Pet Sematary",
     description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    creator: "Stephen King",
-    creatorId: "1",
+    image: "/images/sk2.jpeg",
+    author: "Stephen King",
+    authorId: "1",
     language: "en",
     genre: "Horror",
     publicationDate: "1983",
+    available: false,
   },
   {
     id: "b3",
     title: "The Shining",
     description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    creator: "Stephen King",
-    creatorId: "1",
+    image: "/images/sk3.jpeg",
+    author: "Stephen King",
+    authorId: "1",
     language: "en",
     genre: "Horror",
     publicationDate: "1977",
+    available: true,
+  },
+  {
+    id: "b4",
+    title: "The Green Mile",
+    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
+    image: "/images/sk1.jpeg",
+    author: "Stephen King",
+    authorId: "1",
+    language: "en",
+    genre: "Dark Fantasy",
+    publicationDate: "1996",
+    available: false,
+  },
+  {
+    id: "b5",
+    title: "Pet Sematary",
+    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
+    image: "/images/sk2.jpeg",
+    author: "Stephen King",
+    authorId: "1",
+    language: "en",
+    genre: "Horror",
+    publicationDate: "1983",
+    available: true,
+  },
+  {
+    id: "b6",
+    title: "The Shining",
+    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
+    image: "/images/sk3.jpeg",
+    author: "Stephen King",
+    authorId: "1",
+    language: "en",
+    genre: "Horror",
+    publicationDate: "1977",
+    available: true,
   },
 ];
 
@@ -40,7 +82,7 @@ const DUMMY_USERS_BOOKS = [
   {
     id: "u1",
     name: "Fernando Fanelli",
-    bookId: "b1",
+    bookIds: ["b1", "b2", "b3"],
   },
   {
     id: "u2",
@@ -82,17 +124,16 @@ const getBookByUserId = (req, res, next) => {
     );
   }
 
-  const book = DUMMY_BOOKS.find((b) => {
-    return b.id === user.bookId;
-  });
+  user.f;
+  const books = DUMMY_BOOKS.filter((b) => user.bookIds.includes(b.id));
 
-  if (!book || book.length === 0) {
+  if (!books || books.length === 0) {
     return next(
       new HttpError("Could not find a book for the provided user id.", 404)
     );
   }
 
-  res.json({ book });
+  res.json({ books });
 };
 
 const createBook = (req, res, next) => {
@@ -103,13 +144,13 @@ const createBook = (req, res, next) => {
     );
   }
 
-  const { title, description, creator, language, genre, publicationDate } =
+  const { title, description, author, language, genre, publicationDate } =
     req.body;
   const createdBook = {
     id: uuidv4(),
     title,
     description,
-    creator,
+    author,
     language,
     genre,
     publicationDate,
