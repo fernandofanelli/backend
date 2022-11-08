@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 
 const usersRoute = require("./routes/users");
 const booksRoute = require("./routes/books");
-const HttpError = require("./models/http-error");
+const { dataSource } = require("./config");
 
 dotenv.config();
 
@@ -37,3 +37,10 @@ const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
   console.log(`Server is running on PORT ${PORT}`);
 });
+
+try {
+  dataSource.initialize();
+  console.log("Database connected.");
+} catch (error) {
+  console.log(error);
+}
