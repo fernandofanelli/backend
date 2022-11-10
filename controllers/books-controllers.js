@@ -5,313 +5,13 @@ const HttpError = require("../models/http-error");
 const {
   getBooksFromDB,
   getBookByIdFromDB,
-  getBookByEmailFromDB,
+  getBooksOwnerFromDB,
   postBookToDB,
+  updateBookByIdToDB,
+  deleteBookByIdToDB,
 } = require("../services/books");
 
-let DUMMY_BOOKS = [
-  {
-    id: "b1",
-    title: "The Green Mile",
-    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    image: "/images/sk1.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Dark Fantasy",
-    publicationDate: "1996",
-    available: true,
-  },
-  {
-    id: "b2",
-    title: "Pet Sematary",
-    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    image: "/images/sk2.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1983",
-    available: false,
-  },
-  {
-    id: "b3",
-    title: "The Shining",
-    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    image: "/images/sk3.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1977",
-    available: true,
-  },
-  {
-    id: "b4",
-    title: "The Green Mile",
-    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    image: "/images/sk1.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Dark Fantasy",
-    publicationDate: "1996",
-    available: false,
-  },
-  {
-    id: "b5",
-    title: "Pet Sematary",
-    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    image: "/images/sk2.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1983",
-    available: true,
-  },
-  {
-    id: "b6",
-    title: "The Shining",
-    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    image: "/images/sk3.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1977",
-    available: true,
-  },
-  {
-    id: "b1",
-    title: "The Green Mile",
-    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    image: "/images/sk1.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Dark Fantasy",
-    publicationDate: "1996",
-    available: true,
-  },
-  {
-    id: "b2",
-    title: "Pet Sematary",
-    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    image: "/images/sk2.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1983",
-    available: false,
-  },
-  {
-    id: "b3",
-    title: "The Shining",
-    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    image: "/images/sk3.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1977",
-    available: true,
-  },
-  {
-    id: "b4",
-    title: "The Green Mile",
-    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    image: "/images/sk1.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Dark Fantasy",
-    publicationDate: "1996",
-    available: false,
-  },
-  {
-    id: "b5",
-    title: "Pet Sematary",
-    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    image: "/images/sk2.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1983",
-    available: true,
-  },
-  {
-    id: "b6",
-    title: "The Shining",
-    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    image: "/images/sk3.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1977",
-    available: true,
-  },
-  {
-    id: "b1",
-    title: "The Green Mile",
-    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    image: "/images/sk1.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Dark Fantasy",
-    publicationDate: "1996",
-    available: true,
-  },
-  {
-    id: "b2",
-    title: "Pet Sematary",
-    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    image: "/images/sk2.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1983",
-    available: false,
-  },
-  {
-    id: "b3",
-    title: "The Shining",
-    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    image: "/images/sk3.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1977",
-    available: true,
-  },
-  {
-    id: "b4",
-    title: "The Green Mile",
-    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    image: "/images/sk1.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Dark Fantasy",
-    publicationDate: "1996",
-    available: false,
-  },
-  {
-    id: "b5",
-    title: "Pet Sematary",
-    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    image: "/images/sk2.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1983",
-    available: true,
-  },
-  {
-    id: "b6",
-    title: "The Shining",
-    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    image: "/images/sk3.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1977",
-    available: true,
-  },
-  {
-    id: "b1",
-    title: "The Green Mile",
-    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    image: "/images/sk1.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Dark Fantasy",
-    publicationDate: "1996",
-    available: true,
-  },
-  {
-    id: "b2",
-    title: "Pet Sematary",
-    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    image: "/images/sk2.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1983",
-    available: false,
-  },
-  {
-    id: "b3",
-    title: "The Shining",
-    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    image: "/images/sk3.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1977",
-    available: true,
-  },
-  {
-    id: "b4",
-    title: "The Green Mile",
-    description: `The Green Mile is a 1996 serial novel by American writer Stephen King. It tells the story of death row supervisor Paul Edgecombe's encounter with John Coffey, an unusual inmate who displays inexplicable healing and empathetic abilities.`,
-    image: "/images/sk1.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Dark Fantasy",
-    publicationDate: "1996",
-    available: false,
-  },
-  {
-    id: "b5",
-    title: "Pet Sematary",
-    description: `Louis Creed, a doctor from Chicago, is appointed director of the University of Maine's campus health service. He moves to a large house near the small town of Ludlow with his wife Rachel, their two young children, Ellie and Gage, and Ellie's cat, Winston Churchill ("Church").`,
-    image: "/images/sk2.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1983",
-    available: true,
-  },
-  {
-    id: "b6",
-    title: "The Shining",
-    description: `The Shining is a 1977 horror novel by American author Stephen King. It is King's third published novel and first hardback bestseller; its success firmly established King as a preeminent author in the horror genre. The setting and characters are influenced by King's personal experiences, including both his visit to The Stanley Hotel in 1974 and his struggle with alcoholism.`,
-    image: "/images/sk3.jpeg",
-    author: "Stephen King",
-    authorId: "1",
-    language: "en",
-    genre: "Horror",
-    publicationDate: "1977",
-    available: true,
-  },
-];
-
-const DUMMY_USERS_BOOKS = [
-  {
-    id: "u1",
-    name: "Fernando Fanelli",
-    bookIds: ["b1", "b2", "b3"],
-  },
-  {
-    id: "u2",
-    name: "Agus Bondiola",
-    bookId: "b2",
-  },
-];
+const { getUserByIdFromDB } = require("../services/users");
 
 const getBooks = async (req, res, next) => {
   let books = await getBooksFromDB();
@@ -330,12 +30,8 @@ const getBookById = async (req, res, next) => {
   res.json({ book });
 };
 
-const getBookByUserId = (req, res, next) => {
-  const userId = req.params.uid;
-
-  const user = DUMMY_USERS_BOOKS.find((u) => {
-    return u.id === userId;
-  });
+const getBooksFromUserId = async (req, res, next) => {
+  let user = await getUserByIdFromDB(req.params.uid);
 
   if (!user || user.length === 0) {
     return next(
@@ -343,7 +39,7 @@ const getBookByUserId = (req, res, next) => {
     );
   }
 
-  const books = DUMMY_BOOKS.filter((b) => user.bookIds.includes(b.id));
+  let books = await getBooksOwnerFromDB(req.params.uid);
 
   if (!books || books.length === 0) {
     return next(
@@ -354,7 +50,7 @@ const getBookByUserId = (req, res, next) => {
   res.json({ books });
 };
 
-const createBook = (req, res, next) => {
+const createBook = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -362,24 +58,12 @@ const createBook = (req, res, next) => {
     );
   }
 
-  const { title, description, author, language, genre, publicationDate } =
-    req.body;
-  const createdBook = {
-    id: uuidv4(),
-    title,
-    description,
-    author,
-    language,
-    genre,
-    publicationDate,
-  };
+  let book = await postBookToDB(req.body);
 
-  DUMMY_BOOKS.push(createdBook);
-
-  res.status(201).json({ book: createdBook });
+  res.status(201).json({ book: book });
 };
 
-const updateBook = (req, res, next) => {
+const updateBook = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -387,32 +71,28 @@ const updateBook = (req, res, next) => {
     );
   }
 
-  const { title, description } = req.body;
-  const bookId = req.params.bid;
+  let book = await updateBookByIdToDB(req.params.bid, req.body);
 
-  const updatedBook = { ...DUMMY_BOOKS.find((b) => b.id === bookId) };
-  const bookIndex = DUMMY_BOOKS.findIndex((b) => b.id === bookId);
-  updatedBook.title = title;
-  updatedBook.description = description;
-
-  DUMMY_BOOKS[bookIndex] = updatedBook;
-
-  res.status(200).json({ book: updatedBook });
+  res.status(200).json({ book: book });
 };
 
-const deleteBook = (req, res, next) => {
-  const bookId = req.params.bid;
-  if (!DUMMY_BOOKS.find((b) => b.id === bookId)) {
-    return next(new HttpError("Could not find a place for that id.", 404));
+const deleteBook = async (req, res, next) => {
+  let book = await getBookByIdFromDB(req.params.bid);
+
+  if (book.length === 0) {
+    return next(
+      new HttpError("Could not find a book for the provided id.", 404)
+    );
   }
-  DUMMY_BOOKS = DUMMY_BOOKS.filter((b) => b.id !== bookId);
+
+  book = await deleteBookByIdToDB(req.params.bid);
 
   res.status(200).json({ message: "Deleted Book." });
 };
 
 exports.getBooks = getBooks;
 exports.getBookById = getBookById;
-exports.getBookByUserId = getBookByUserId;
+exports.getBooksFromUserId = getBooksFromUserId;
 exports.createBook = createBook;
 exports.updateBook = updateBook;
 exports.deleteBook = deleteBook;
