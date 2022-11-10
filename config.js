@@ -17,8 +17,7 @@ const dataSource = new typeorm.DataSource({
     require("./entity/Genre"),
     require("./entity/Author"),
     require("./entity/Publisher"),
-    require("./entity/BooksBorrowedByUser"),
-    require("./entity/BooksFromUser"),
+    require("./entity/UserBooks"),
   ],
 });
 

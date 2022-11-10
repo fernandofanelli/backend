@@ -1,3 +1,7 @@
+const Author = require("./Author");
+const Genre = require("./Genre");
+const Publisher = require("./Publisher");
+
 const EntitySchema = require("typeorm").EntitySchema;
 
 module.exports = new EntitySchema({
@@ -29,9 +33,6 @@ module.exports = new EntitySchema({
       type: "varchar",
       length: 200,
     },
-    amount: {
-      type: "int",
-    },
     language: {
       type: "varchar",
       length: 2,
@@ -44,6 +45,20 @@ module.exports = new EntitySchema({
     },
     author: {
       type: "bigint",
+    },
+  },
+  relations: {
+    genre: {
+      type: "one-to-one",
+      target: Genre,
+    },
+    publisher: {
+      type: "one-to-one",
+      target: Publisher,
+    },
+    author: {
+      type: "one-to-one",
+      target: Author,
     },
   },
 });
