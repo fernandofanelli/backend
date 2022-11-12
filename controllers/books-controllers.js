@@ -6,6 +6,7 @@ const {
   getBooksFromDB,
   getBookByIdFromDB,
   getBooksOwnerFromDB,
+  getAllBooksOwnerFromDB,
   postBookToDB,
   updateBookByIdToDB,
   deleteBookByIdToDB,
@@ -30,7 +31,7 @@ const getBookById = async (req, res, next) => {
   res.json({ book });
 };
 
-const getBooksFromUserId = async (req, res, next) => {
+const getBooksOwnerById = async (req, res, next) => {
   let user = await getUserByIdFromDB(req.params.uid);
 
   if (!user || user.length === 0) {
@@ -40,6 +41,18 @@ const getBooksFromUserId = async (req, res, next) => {
   }
 
   let books = await getBooksOwnerFromDB(req.params.uid);
+
+  if (!books || books.length === 0) {
+    return next(
+      new HttpError("Could not find a book for the provided user id.", 404)
+    );
+  }
+
+  res.json({ books });
+};
+
+const getAllBooksOwnerId = async (req, res, next) => {
+  let books = await getAllBooksOwnerFromDB();
 
   if (!books || books.length === 0) {
     return next(
@@ -92,7 +105,8 @@ const deleteBook = async (req, res, next) => {
 
 exports.getBooks = getBooks;
 exports.getBookById = getBookById;
-exports.getBooksFromUserId = getBooksFromUserId;
+exports.getBooksOwnerById = getBooksOwnerById;
+exports.getAllBooksOwnerId = getAllBooksOwnerId;
 exports.createBook = createBook;
 exports.updateBook = updateBook;
 exports.deleteBook = deleteBook;

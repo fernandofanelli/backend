@@ -9,9 +9,11 @@ const router = Router();
 
 router.get("/", booksControllers.getBooks);
 
+router.get("/user", booksControllers.getAllBooksOwnerId);
+
 router.get("/:bid", booksControllers.getBookById);
 
-router.get("/user/:uid", booksControllers.getBooksFromUserId);
+router.get("/user/:uid", booksControllers.getBooksOwnerById);
 
 router.post(
   "/",

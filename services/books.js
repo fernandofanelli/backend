@@ -18,10 +18,8 @@ async function getBooksOwnerFromDB(userId) {
   });
 }
 
-async function getBooksBorrowerFromDB(userId) {
-  return await dataSource.getRepository(UserBooks).find({
-    where: { user_id: userId },
-  });
+async function getAllBooksOwnerFromDB() {
+  return await dataSource.getRepository(UserBooks).find();
 }
 
 async function postBookToDB(data) {
@@ -42,7 +40,7 @@ module.exports = {
   getBooksFromDB,
   getBookByIdFromDB,
   getBooksOwnerFromDB,
-  getBooksBorrowerFromDB,
+  getAllBooksOwnerFromDB,
   postBookToDB,
   updateBookByIdToDB,
   deleteBookByIdToDB,
