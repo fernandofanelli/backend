@@ -25,13 +25,16 @@ module.exports = new EntitySchema({
       type: "varchar",
       length: 4,
     },
-    plot: {
+    synopsis: {
       type: "varchar",
       length: 2000,
     },
     cover_image: {
       type: "varchar",
       length: 200,
+    },
+    amount: {
+      type: "int",
     },
     language: {
       type: "varchar",
