@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 
 const usersRoute = require("./routes/users");
 const booksRoute = require("./routes/books");
+const userBooksRoute = require("./routes/user-books");
 const { dataSource } = require("./config");
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //Middlewares
 app.use("/api/users", usersRoute);
 app.use("/api/books", booksRoute);
+app.use("/api/user-books", userBooksRoute);
 
 //Error Middleware function
 app.use((error, req, res, next) => {
