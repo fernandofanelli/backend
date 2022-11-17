@@ -27,7 +27,7 @@ module.exports = new EntitySchema({
     },
     synopsis: {
       type: "varchar",
-      length: 2000,
+      length: 1100,
     },
     cover_image: {
       type: "varchar",
