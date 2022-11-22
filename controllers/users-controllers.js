@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const {
@@ -9,21 +10,29 @@ const {
 } = require("../services/users");
 
 const getUsers = async (req, res, next) => {
-  let users = await getUsersFromDB();
-  res.json({ users });
+  jwt.verify(req.token, "secretkey", async (err, authData) => {
+    if (err) return next(new HttpError("Invalid token.", 403));
+    else {
+      let users = await getUsersFromDB();
+      res.json({ users, data: authData });
+    }
+  });
 };
 
 const getUserById = async (req, res, next) => {
-  let user = await getUserByIdFromDB(req.params.uid);
+  jwt.verify(req.token, "secretkey", async (err, authData) => {
+    if (err) return next(new HttpError("Invalid token.", 403));
+    else {
+      let user = await getUserByIdFromDB(req.params.uid);
 
-  if (user.length === 0) {
-    return next(
-      new HttpError("Could not find a user for the provided id.", 404)
-    );
-  }
-
-  //Delete password retrival from here
-  res.json({ user });
+      if (user.length === 0) {
+        return next(
+          new HttpError("Could not find a user for the provided id.", 404)
+        );
+      }
+      res.json({ data: authData });
+    }
+  });
 };
 
 const signUp = async (req, res, next) => {
@@ -42,7 +51,15 @@ const signUp = async (req, res, next) => {
   }
 
   let user = await postUserToDB(req.body);
-  res.status(201).json({ user: user });
+
+  res.status(201).json({
+    data: {
+      userId: user.id,
+      email: user.email,
+      token: await createJWT(user, next),
+    },
+    success: true,
+  });
 };
 
 const login = async (req, res, next) => {
@@ -62,7 +79,31 @@ const login = async (req, res, next) => {
     );
   }
 
-  res.json({ identifiedUser, message: "Logged in" });
+  res.json({
+    data: {
+      userId: identifiedUser.id,
+      email: identifiedUser.email,
+      token: await createJWT(identifiedUser, next),
+    },
+    success: true,
+  });
+};
+
+const createJWT = async (data, next) => {
+  try {
+    //Creating jwt token
+    return jwt.sign(
+      {
+        userId: data.id,
+        email: data.email,
+        name: data.name,
+      },
+      "secretkey",
+      { expiresIn: "24h" }
+    );
+  } catch (err) {
+    return next(new HttpError("Error! Something went wrong.", 403));
+  }
 };
 
 exports.getUsers = getUsers;

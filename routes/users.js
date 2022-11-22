@@ -2,13 +2,14 @@ const { Router } = require("express");
 const { check } = require("express-validator");
 
 const usersControllers = require("../controllers/users-controllers");
+const verifyToken = require("../controllers/verifier-controller");
 
 const router = Router();
 
 //Routes
 
-router.get("/", usersControllers.getUsers);
-router.get("/:uid", usersControllers.getUserById);
+router.get("/", verifyToken, usersControllers.getUsers);
+router.get("/:uid", verifyToken, usersControllers.getUserById);
 router.post(
   "/signup",
   [
