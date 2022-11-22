@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { check } = require("express-validator");
 
 const booksControllers = require("../controllers/books-controllers");
+const verifyToken = require("../controllers/verifier-controller");
 
 const router = Router();
 
@@ -9,14 +10,15 @@ const router = Router();
 
 router.get("/", booksControllers.getBooks);
 
-router.get("/user", booksControllers.getAllBooksOwnerId);
+router.get("/user", verifyToken, booksControllers.getAllBooksOwnerId);
 
-router.get("/:bid", booksControllers.getBookById);
+router.get("/:bid", verifyToken, booksControllers.getBookById);
 
-router.get("/user/:uid", booksControllers.getBooksOwnerById);
+router.get("/user/:uid", verifyToken, booksControllers.getBooksOwnerById);
 
 router.post(
   "/",
+  verifyToken,
   [
     check("title").not().isEmpty(),
     check("isbn").not().isEmpty().isNumeric().isLength({ max: 13 }),
@@ -33,6 +35,7 @@ router.post(
 
 router.patch(
   "/:bid",
+  verifyToken,
   [
     check("title").not().isEmpty(),
     check("isbn").not().isEmpty().isNumeric().isLength({ max: 13 }),
@@ -47,6 +50,6 @@ router.patch(
   booksControllers.updateBook
 );
 
-router.delete("/:bid", booksControllers.deleteBook);
+router.delete("/:bid", verifyToken, booksControllers.deleteBook);
 
 module.exports = router;

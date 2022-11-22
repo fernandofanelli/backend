@@ -1,5 +1,5 @@
-const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const {
@@ -20,87 +20,117 @@ const getBooks = async (req, res, next) => {
 };
 
 const getBookById = async (req, res, next) => {
-  let book = await getBookByIdFromDB(req.params.bid);
+  jwt.verify(req.token, "secretkey", async (err, authData) => {
+    if (err) return next(new HttpError("Invalid token.", 403));
+    else {
+      let book = await getBookByIdFromDB(req.params.bid);
 
-  if (book.length === 0) {
-    return next(
-      new HttpError("Could not find a book for the provided id.", 404)
-    );
-  }
+      if (book.length === 0) {
+        return next(
+          new HttpError("Could not find a book for the provided id.", 404)
+        );
+      }
 
-  res.json({ book });
+      res.json({ data: book });
+    }
+  });
 };
 
 const getBooksOwnerById = async (req, res, next) => {
-  let user = await getUserByIdFromDB(req.params.uid);
+  jwt.verify(req.token, "secretkey", async (err, authData) => {
+    if (err) return next(new HttpError("Invalid token.", 403));
+    else {
+      let user = await getUserByIdFromDB(req.params.uid);
 
-  if (!user || user.length === 0) {
-    return next(
-      new HttpError("Could not find a user for the provided user id.", 404)
-    );
-  }
+      if (!user || user.length === 0) {
+        return next(
+          new HttpError("Could not find a user for the provided user id.", 404)
+        );
+      }
 
-  let books = await getBooksOwnerFromDB(req.params.uid);
+      let books = await getBooksOwnerFromDB(req.params.uid);
 
-  if (!books || books.length === 0) {
-    return next(
-      new HttpError("Could not find a book for the provided user id.", 404)
-    );
-  }
+      if (!books || books.length === 0) {
+        return next(
+          new HttpError("Could not find a book for the provided user id.", 404)
+        );
+      }
 
-  res.json({ books });
+      res.json({ data: books });
+    }
+  });
 };
 
 const getAllBooksOwnerId = async (req, res, next) => {
-  let books = await getAllBooksOwnerFromDB();
+  jwt.verify(req.token, "secretkey", async (err, authData) => {
+    if (err) return next(new HttpError("Invalid token.", 403));
+    else {
+      let books = await getAllBooksOwnerFromDB();
 
-  if (!books || books.length === 0) {
-    return next(
-      new HttpError("Could not find a book for the provided user id.", 404)
-    );
-  }
+      if (!books || books.length === 0) {
+        return next(
+          new HttpError("Could not find a book for the provided user id.", 404)
+        );
+      }
 
-  res.json({ books });
+      res.json({ data: books });
+    }
+  });
 };
 
 const createBook = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
-    );
-  }
+  jwt.verify(req.token, "secretkey", async (err, authData) => {
+    if (err) return next(new HttpError("Invalid token.", 403));
+    else {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(
+          new HttpError("Invalid inputs passed, please check your data.", 422)
+        );
+      }
 
-  let book = await postBookToDB(req.body);
+      let book = await postBookToDB(req.body);
 
-  res.status(201).json({ book: book });
+      res.status(201).json({ data: book });
+    }
+  });
 };
 
 const updateBook = async (req, res, next) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return next(
-      new HttpError("Invalid inputs passed, please check your data.", 422)
-    );
-  }
+  jwt.verify(req.token, "secretkey", async (err, authData) => {
+    if (err) return next(new HttpError("Invalid token.", 403));
+    else {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(
+          new HttpError("Invalid inputs passed, please check your data.", 422)
+        );
+      }
 
-  let book = await updateBookByIdToDB(req.params.bid, req.body);
+      let book = await updateBookByIdToDB(req.params.bid, req.body);
 
-  res.status(200).json({ book: book });
+      res.status(200).json({ data: book });
+    }
+  });
 };
 
 const deleteBook = async (req, res, next) => {
-  let book = await getBookByIdFromDB(req.params.bid);
+  jwt.verify(req.token, "secretkey", async (err, authData) => {
+    if (err) return next(new HttpError("Invalid token.", 403));
+    else {
+      let book = await getBookByIdFromDB(req.params.bid);
 
-  if (book.length === 0) {
-    return next(
-      new HttpError("Could not find a book for the provided id.", 404)
-    );
-  }
+      if (book.length === 0) {
+        return next(
+          new HttpError("Could not find a book for the provided id.", 404)
+        );
+      }
 
-  book = await deleteBookByIdToDB(req.params.bid);
+      book = await deleteBookByIdToDB(req.params.bid);
 
-  res.status(200).json({ message: "Deleted Book." });
+      res.status(200).json({ data: book, message: "Deleted Book." });
+    }
+  });
 };
 
 exports.getBooks = getBooks;
