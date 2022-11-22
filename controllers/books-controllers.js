@@ -20,20 +20,15 @@ const getBooks = async (req, res, next) => {
 };
 
 const getBookById = async (req, res, next) => {
-  jwt.verify(req.token, "secretkey", async (err, authData) => {
-    if (err) return next(new HttpError("Invalid token.", 403));
-    else {
-      let book = await getBookByIdFromDB(req.params.bid);
+  let book = await getBookByIdFromDB(req.params.bid);
 
-      if (book.length === 0) {
-        return next(
-          new HttpError("Could not find a book for the provided id.", 404)
-        );
-      }
+  if (book.length === 0) {
+    return next(
+      new HttpError("Could not find a book for the provided id.", 404)
+    );
+  }
 
-      res.json({ data: book });
-    }
-  });
+  res.json({ data: book });
 };
 
 const getBooksOwnerById = async (req, res, next) => {

@@ -8,7 +8,8 @@ const router = Router();
 
 //Routes
 
-router.get("/", verifyToken, usersControllers.getUsers);
+//router.get("/", verifyToken, usersControllers.getUsers);
+router.get("/", verifyToken, usersControllers.refreshUser);
 router.get("/:uid", verifyToken, usersControllers.getUserById);
 router.post(
   "/signup",
