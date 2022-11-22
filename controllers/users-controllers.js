@@ -9,12 +9,25 @@ const {
   postUserToDB,
 } = require("../services/users");
 
-const getUsers = async (req, res, next) => {
+// const getUsers = async (req, res, next) => {
+//   jwt.verify(req.token, "secretkey", async (err, authData) => {
+//     if (err) return next(new HttpError("Invalid token.", 403));
+//     else {
+//       let users = await getUsersFromDB();
+//       res.json({ users, data: authData });
+//     }
+//   });
+// };
+
+const refreshUser = async (req, res, next) => {
   jwt.verify(req.token, "secretkey", async (err, authData) => {
-    if (err) return next(new HttpError("Invalid token.", 403));
+    if (err) return next(new HttpError("Invalid token or expired.", 403));
     else {
-      let users = await getUsersFromDB();
-      res.json({ users, data: authData });
+      let user = await getUserByIdFromDB(authData.userId);
+      if (user.length === 0) {
+        return next(new HttpError("Could not find a user with token id.", 404));
+      }
+      res.json({ data: authData, token: req.token });
     }
   });
 };
@@ -106,7 +119,8 @@ const createJWT = async (data, next) => {
   }
 };
 
-exports.getUsers = getUsers;
+//exports.getUsers = getUsers;
+exports.refreshUser = refreshUser;
 exports.getUserById = getUserById;
 exports.signUp = signUp;
 exports.login = login;

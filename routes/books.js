@@ -12,7 +12,7 @@ router.get("/", booksControllers.getBooks);
 
 router.get("/user", verifyToken, booksControllers.getAllBooksOwnerId);
 
-router.get("/:bid", verifyToken, booksControllers.getBookById);
+router.get("/:bid", booksControllers.getBookById);
 
 router.get("/user/:uid", verifyToken, booksControllers.getBooksOwnerById);
 
