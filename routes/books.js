@@ -15,6 +15,7 @@ router.get("/user", verifyToken, booksControllers.getAllBooksOwnerId);
 router.get("/:bid", booksControllers.getBookById);
 
 router.get("/user/:uid", verifyToken, booksControllers.getBooksOwnerById);
+router.get("/search/:searchValue", booksControllers.getMatchingBooks);
 
 router.post(
   "/",

@@ -18,7 +18,8 @@ module.exports = new EntitySchema({
       length: 60,
     },
     isbn: {
-      type: "bigint",
+      type: "varchar",
+      length: 13,
       unique: true,
     },
     publication_date: {
