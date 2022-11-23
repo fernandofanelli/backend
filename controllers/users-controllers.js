@@ -9,43 +9,26 @@ const {
   postUserToDB,
 } = require("../services/users");
 
-// const getUsers = async (req, res, next) => {
-//   jwt.verify(req.token, "secretkey", async (err, authData) => {
-//     if (err) return next(new HttpError("Invalid token.", 403));
-//     else {
-//       let users = await getUsersFromDB();
-//       res.json({ users, data: authData });
-//     }
-//   });
-// };
-
 const refreshUser = async (req, res, next) => {
-  jwt.verify(req.token, "secretkey", async (err, authData) => {
-    if (err) return next(new HttpError("Invalid token or expired.", 403));
-    else {
-      let user = await getUserByIdFromDB(authData.userId);
-      if (user.length === 0) {
-        return next(new HttpError("Could not find a user with token id.", 404));
-      }
-      res.json({ data: authData, token: req.token });
-    }
-  });
+  let user = await getUserByIdFromDB(req.params.uid);
+
+  if (user.length === 0) {
+    return next(
+      new HttpError("Could not find a user for the provided id.", 404)
+    );
+  }
+  res.json({ data: req.authData });
 };
 
 const getUserById = async (req, res, next) => {
-  jwt.verify(req.token, "secretkey", async (err, authData) => {
-    if (err) return next(new HttpError("Invalid token.", 403));
-    else {
-      let user = await getUserByIdFromDB(req.params.uid);
+  let user = await getUserByIdFromDB(req.params.uid);
 
-      if (user.length === 0) {
-        return next(
-          new HttpError("Could not find a user for the provided id.", 404)
-        );
-      }
-      res.json({ data: authData });
-    }
-  });
+  if (user.length === 0) {
+    return next(
+      new HttpError("Could not find a user for the provided id.", 404)
+    );
+  }
+  res.json({ data: req.authData });
 };
 
 const signUp = async (req, res, next) => {
