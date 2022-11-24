@@ -3,26 +3,15 @@ const { dataSource } = require("../config");
 const Author = require("../entity/Author");
 const Book = require("../entity/Book");
 const Genre = require("../entity/Genre");
-const UserBooks = require("../entity/UserBooks");
 
 async function getBooksFromDB() {
   return await dataSource.getRepository(Book).find();
 }
 
-async function getBookByIdFromDB(bookId) {
+async function getBookByBIDFromDB(bookId) {
   return await dataSource.getRepository(Book).find({
     where: { id: bookId },
   });
-}
-
-async function getBooksOwnerFromDB(userId) {
-  return await dataSource.getRepository(UserBooks).find({
-    where: { user_id: userId },
-  });
-}
-
-async function getAllBooksOwnerFromDB() {
-  return await dataSource.getRepository(UserBooks).find();
 }
 
 async function getMatchingBooksFromDB(data) {
@@ -63,9 +52,7 @@ async function deleteBookByIdToDB(id) {
 
 module.exports = {
   getBooksFromDB,
-  getBookByIdFromDB,
-  getBooksOwnerFromDB,
-  getAllBooksOwnerFromDB,
+  getBookByBIDFromDB,
   getMatchingBooksFromDB,
   postBookToDB,
   updateBookByIdToDB,

@@ -78,6 +78,7 @@ const login = async (req, res, next) => {
   res.json({
     data: {
       userId: identifiedUser.id,
+      name: identifiedUser.name,
       email: identifiedUser.email,
       token: await createJWT(identifiedUser, next),
     },
