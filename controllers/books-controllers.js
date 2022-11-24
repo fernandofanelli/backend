@@ -29,7 +29,7 @@ const getBookById = async (req, res, next) => {
     );
   }
 
-  res.json({ data: book });
+  res.json({ data: book[0] });
 };
 
 const getBooksOwnerById = async (req, res, next) => {
