@@ -4,6 +4,8 @@ const HttpError = require("../models/http-error");
 const {
   getBooksFromDB,
   getBookByBIDFromDB,
+  getBookByTitleFromDB,
+  getBookByISBNFromDB,
   getMatchingBooksFromDB,
   postBookToDB,
   updateBookByIdToDB,
@@ -50,6 +52,18 @@ const createBook = async (req, res, next) => {
     );
   }
 
+  let book = await getBookByTitleFromDB(req.body.title);
+
+  if (book.length !== 0) {
+    return next(new HttpError("Book title already exists.", 404));
+  }
+
+  book = await getBookByISBNFromDB(req.body.isbn);
+
+  if (book.length !== 0) {
+    return next(new HttpError("Book isbn already exists.", 404));
+  }
+
   let author = await getAuthorFromDB(req.body.author);
   let authorData;
   if (author.length === 0) {
@@ -64,7 +78,7 @@ const createBook = async (req, res, next) => {
     let body = { name: req.body.publisher };
     publisherData = await postPublisherToDB(body);
   }
-  let publisherId = author.length !== 0 ? publisher[0].id : publisherData.id;
+  let publisherId = publisher.length !== 0 ? publisher[0].id : publisherData.id;
 
   let genre = await getGenreFromDB(req.body.genre);
   let genreData;
@@ -80,24 +94,23 @@ const createBook = async (req, res, next) => {
     publication_date: req.body.publication_date,
     synopsis: req.body.synopsis,
     cover_image: req.body.cover_image,
-    amount: 1,
-    language: req.body.language,
+    amount: req.body.amount,
+    language: req.body.language.toLowerCase(),
     genre: genreId,
     publisher: publisherId,
     author: authorId,
   };
-  let book = await postBookToDB(bookBody);
+  let bookCreated = await postBookToDB(bookBody);
 
   const userBookBody = {
     user_id: req.body.uid,
-    book_id: book.id,
+    book_id: bookCreated.id,
     borrower_id: null,
     borrowed_date: null,
   };
-  console.log(userBookBody);
   await userBooks.postUserBooks(userBookBody);
 
-  res.status(201).json({ data: book });
+  res.status(201).json({ data: bookCreated });
 };
 
 const updateBook = async (req, res, next) => {
