@@ -103,7 +103,6 @@ const createJWT = async (data, next) => {
   }
 };
 
-//exports.getUsers = getUsers;
 exports.refreshUser = refreshUser;
 exports.getUserById = getUserById;
 exports.signUp = signUp;

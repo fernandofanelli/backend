@@ -14,6 +14,18 @@ async function getBookByBIDFromDB(bookId) {
   });
 }
 
+async function getBookByTitleFromDB(title) {
+  return await dataSource.getRepository(Book).find({
+    where: { title: title },
+  });
+}
+
+async function getBookByISBNFromDB(isbn) {
+  return await dataSource.getRepository(Book).find({
+    where: { isbn: isbn },
+  });
+}
+
 async function getMatchingBooksFromDB(data) {
   let genreName;
   let authorName;
@@ -53,6 +65,8 @@ async function deleteBookByIdToDB(id) {
 module.exports = {
   getBooksFromDB,
   getBookByBIDFromDB,
+  getBookByTitleFromDB,
+  getBookByISBNFromDB,
   getMatchingBooksFromDB,
   postBookToDB,
   updateBookByIdToDB,
