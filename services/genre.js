@@ -8,6 +8,12 @@ async function getGenreFromDB(name) {
   });
 }
 
+async function getGenreByIdFromDB(id) {
+  return await dataSource.getRepository(Genre).find({
+    where: { id: id },
+  });
+}
+
 async function postGenreToDB(data) {
   const genre = dataSource.getRepository(Genre).create(data);
   const res = await dataSource.getRepository(Genre).save(genre);
@@ -16,5 +22,6 @@ async function postGenreToDB(data) {
 
 module.exports = {
   getGenreFromDB,
+  getGenreByIdFromDB,
   postGenreToDB,
 };
