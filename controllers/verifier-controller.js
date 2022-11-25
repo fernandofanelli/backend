@@ -3,7 +3,6 @@ const HttpError = require("../models/http-error");
 
 const verifyToken = (req, res, next) => {
   const bearerHeader = req.headers["authorization"];
-  console.log("token: ", bearerHeader);
   if (typeof bearerHeader !== "undefined" || bearerHeader === "") {
     jwt.verify(bearerHeader, "secretkey", async (err, authData) => {
       req.authData = authData;
