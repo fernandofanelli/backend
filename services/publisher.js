@@ -8,6 +8,12 @@ async function getPublisherFromDB(name) {
   });
 }
 
+async function getPublisherByIdFromDB(id) {
+  return await dataSource.getRepository(Publisher).find({
+    where: { id: id },
+  });
+}
+
 async function postPublisherToDB(data) {
   const publisher = dataSource.getRepository(Publisher).create(data);
   const res = await dataSource.getRepository(Publisher).save(publisher);
@@ -16,5 +22,6 @@ async function postPublisherToDB(data) {
 
 module.exports = {
   getPublisherFromDB,
+  getPublisherByIdFromDB,
   postPublisherToDB,
 };

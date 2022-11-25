@@ -4,7 +4,6 @@ const HttpError = require("../models/http-error");
 const {
   getBooksFromDB,
   getBookByBIDFromDB,
-  getBookByTitleFromDB,
   getBookByISBNFromDB,
   getMatchingBooksFromDB,
   postBookToDB,
@@ -14,16 +13,23 @@ const {
   getUserBooksByUIDAndBIDFromDB,
   deleteUserBooksByBIDToDB,
 } = require("../services/user-books");
-
-const { getAuthorFromDB, postAuthorToDB } = require("../services/author");
-
-const booksHelper = require("./helpers/books");
-const userBooks = require("./helpers/user-books");
+const {
+  getAuthorFromDB,
+  getAuthorByIdFromDB,
+  postAuthorToDB,
+} = require("../services/author");
 const {
   getPublisherFromDB,
+  getPublisherByIdFromDB,
   postPublisherToDB,
 } = require("../services/publisher");
-const { getGenreFromDB, postGenreToDB } = require("../services/genre");
+const {
+  getGenreFromDB,
+  getGenreByIdFromDB,
+  postGenreToDB,
+} = require("../services/genre");
+const booksHelper = require("./helpers/books");
+const userBooks = require("./helpers/user-books");
 
 const getBooks = async (req, res, next) => {
   let books = await getBooksFromDB();
@@ -31,15 +37,21 @@ const getBooks = async (req, res, next) => {
 };
 
 const getBookByBID = async (req, res, next) => {
-  let book = await booksHelper.getBookUsingId(req.params.bid, next);
+  let books = await booksHelper.getBookUsingId(req.params.bid, next);
 
-  if (book.length === 0) {
+  if (books.length === 0) {
     return next(
       new HttpError("Could not find a book for the provided id.", 404)
     );
   }
+  let genre = await getGenreByIdFromDB(books[0].genre, next);
+  let publisher = await getPublisherByIdFromDB(books[0].publisher, next);
+  let author = await getAuthorByIdFromDB(books[0].author, next);
+  books[0].genre = genre[0].name;
+  books[0].publisher = publisher[0].name;
+  books[0].author = author[0].name;
 
-  res.json({ data: book[0] });
+  res.json({ data: books[0] });
 };
 
 const getMatchingBooks = async (req, res, next) => {
