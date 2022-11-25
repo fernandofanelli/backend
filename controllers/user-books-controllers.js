@@ -25,7 +25,7 @@ const getUserBooksOwnedByUID = async (req, res, next) => {
   await Promise.all(
     userBooks.map(async (ub) => {
       let book = await booksHelper.getBookUsingId(ub.book_id, next);
-      books.push(...book);
+      if (typeof book !== "undefined") books.push(...book);
     })
   );
 
@@ -98,11 +98,12 @@ const orderBook = async (req, res, next) => {
 
 const returnBook = async (req, res, next) => {
   let book = await booksHelper.getBookUsingId(req.body.bid, next);
-
   let userBook = await getBooksNonAvailableByBIDAndUIDFromDB(
     req.body.bid,
     req.body.uid
   );
+
+  console.log(userBook);
 
   if (!userBook || userBook.length === 0) {
     return next(

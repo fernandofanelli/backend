@@ -51,6 +51,10 @@ async function postUserBooksToDB(data) {
   return book;
 }
 
+async function deleteUserBooksByBIDToDB(id) {
+  return await dataSource.getRepository(UserBooks).delete(id);
+}
+
 module.exports = {
   getUserBooksByUIDFromDB,
   getUserBooksBorrowedByUIDFromDB,
@@ -61,4 +65,5 @@ module.exports = {
   updateBookByIdToDB,
   updateUserBooksToDB,
   postUserBooksToDB,
+  deleteUserBooksByBIDToDB,
 };

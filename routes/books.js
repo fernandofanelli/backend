@@ -48,6 +48,6 @@ router.patch(
   booksControllers.updateBook
 );
 
-router.delete("/:bid", verifyToken, booksControllers.deleteBook);
+router.delete("/", verifyToken, booksControllers.deleteBook);
 
 module.exports = router;

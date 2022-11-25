@@ -55,7 +55,8 @@ async function postBookToDB(data) {
 }
 
 async function updateBookByIdToDB(id, data) {
-  return await dataSource.getRepository(Book).update(id, data);
+  await dataSource.getRepository(Book).update(id, data);
+  return id;
 }
 
 async function deleteBookByIdToDB(id) {
