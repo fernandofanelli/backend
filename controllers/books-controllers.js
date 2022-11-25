@@ -4,7 +4,6 @@ const HttpError = require("../models/http-error");
 const {
   getBooksFromDB,
   getBookByBIDFromDB,
-  getBookByTitleFromDB,
   getBookByISBNFromDB,
   getMatchingBooksFromDB,
   postBookToDB,
@@ -14,16 +13,23 @@ const {
   getUserBooksByUIDAndBIDFromDB,
   deleteUserBooksByBIDToDB,
 } = require("../services/user-books");
-
-const { getAuthorFromDB, postAuthorToDB } = require("../services/author");
-
-const booksHelper = require("./helpers/books");
-const userBooks = require("./helpers/user-books");
+const {
+  getAuthorFromDB,
+  getAuthorByIdFromDB,
+  postAuthorToDB,
+} = require("../services/author");
 const {
   getPublisherFromDB,
+  getPublisherByIdFromDB,
   postPublisherToDB,
 } = require("../services/publisher");
-const { getGenreFromDB, postGenreToDB } = require("../services/genre");
+const {
+  getGenreFromDB,
+  getGenreByIdFromDB,
+  postGenreToDB,
+} = require("../services/genre");
+const booksHelper = require("./helpers/books");
+const userBooks = require("./helpers/user-books");
 
 const getBooks = async (req, res, next) => {
   let books = await getBooksFromDB();
@@ -40,6 +46,42 @@ const getBookByBID = async (req, res, next) => {
   }
 
   res.json({ data: book[0] });
+};
+
+const getGenre = async (req, res, next) => {
+  let genre = await getGenreByIdFromDB(req.params.bid, next);
+
+  if (genre.length === 0) {
+    return next(
+      new HttpError("Could not find a genre for the provided id.", 404)
+    );
+  }
+
+  res.json({ data: genre[0].name });
+};
+
+const getPublisher = async (req, res, next) => {
+  let publisher = await getPublisherByIdFromDB(req.params.bid, next);
+
+  if (publisher.length === 0) {
+    return next(
+      new HttpError("Could not find a genre for the provided id.", 404)
+    );
+  }
+
+  res.json({ data: publisher[0].name });
+};
+
+const getAuthor = async (req, res, next) => {
+  let author = await getAuthorByIdFromDB(req.params.bid, next);
+
+  if (author.length === 0) {
+    return next(
+      new HttpError("Could not find a genre for the provided id.", 404)
+    );
+  }
+
+  res.json({ data: author[0].name });
 };
 
 const getMatchingBooks = async (req, res, next) => {
@@ -181,6 +223,9 @@ const deleteBook = async (req, res, next) => {
 
 exports.getBooks = getBooks;
 exports.getBookByBID = getBookByBID;
+exports.getGenre = getGenre;
+exports.getPublisher = getPublisher;
+exports.getAuthor = getAuthor;
 exports.getMatchingBooks = getMatchingBooks;
 exports.createBook = createBook;
 exports.updateBook = updateBook;

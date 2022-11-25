@@ -12,6 +12,12 @@ router.get("/", booksControllers.getBooks);
 
 router.get("/:bid", booksControllers.getBookByBID);
 
+router.get("/genre/:id", booksControllers.getGenre);
+
+router.get("/publisher/:id", booksControllers.getPublisher);
+
+router.get("/author/:id", booksControllers.getAuthor);
+
 router.get("/search/:searchValue", booksControllers.getMatchingBooks);
 
 router.post(
