@@ -9,8 +9,11 @@ const {
   getMatchingBooksFromDB,
   postBookToDB,
   updateBookByIdToDB,
-  deleteBookByIdToDB,
 } = require("../services/books");
+const {
+  getUserBooksByUIDAndBIDFromDB,
+  deleteUserBooksByBIDToDB,
+} = require("../services/user-books");
 
 const { getAuthorFromDB, postAuthorToDB } = require("../services/author");
 
@@ -52,16 +55,13 @@ const createBook = async (req, res, next) => {
     );
   }
 
-  let book = await getBookByTitleFromDB(req.body.title);
-
-  if (book.length !== 0) {
-    return next(new HttpError("Book title already exists.", 404));
-  }
-
-  book = await getBookByISBNFromDB(req.body.isbn);
-
-  if (book.length !== 0) {
-    return next(new HttpError("Book isbn already exists.", 404));
+  let booksIsbn = await getBookByISBNFromDB(req.body.isbn);
+  if (booksIsbn.length !== 0) {
+    if (booksIsbn[0].title !== req.body.title) {
+      return next(
+        new HttpError("Book isbn already exists, should be unique.", 404)
+      );
+    }
   }
 
   let author = await getAuthorFromDB(req.body.author);
@@ -88,6 +88,7 @@ const createBook = async (req, res, next) => {
   }
   let genreId = genre.length !== 0 ? genre[0].id : genreData.id;
 
+  let book;
   const bookBody = {
     title: req.body.title,
     isbn: req.body.isbn,
@@ -100,17 +101,24 @@ const createBook = async (req, res, next) => {
     publisher: publisherId,
     author: authorId,
   };
-  let bookCreated = await postBookToDB(bookBody);
+  if (booksIsbn.length !== 0 && booksIsbn[0].title === req.body.title) {
+    bookBody.amount = booksIsbn[0].amount + 1;
+    const bookId = await updateBookByIdToDB(booksIsbn[0].id, bookBody);
+    book = await getBookByBIDFromDB(bookId);
+    book = book[0];
+  } else book = await postBookToDB(bookBody);
+
+  console.log(book);
 
   const userBookBody = {
     user_id: req.body.uid,
-    book_id: bookCreated.id,
+    book_id: book.id,
     borrower_id: null,
     borrowed_date: null,
   };
   await userBooks.postUserBooks(userBookBody);
 
-  res.status(201).json({ data: bookCreated });
+  res.status(201).json({ data: book });
 };
 
 const updateBook = async (req, res, next) => {
@@ -127,17 +135,48 @@ const updateBook = async (req, res, next) => {
 };
 
 const deleteBook = async (req, res, next) => {
-  let book = await getBookByBIDFromDB(req.params.bid);
-
-  if (book.length === 0) {
+  let books = await getBookByBIDFromDB(req.body.bid);
+  if (books.length === 0) {
     return next(
       new HttpError("Could not find a book for the provided id.", 404)
     );
   }
 
-  book = await deleteBookByIdToDB(req.params.bid);
+  let booksToDelete = await getUserBooksByUIDAndBIDFromDB(
+    req.body.bid,
+    req.body.uid
+  );
 
-  res.status(200).json({ data: book, message: "Deleted Book." });
+  console.log("Books to delete", booksToDelete);
+  booksToDelete = booksToDelete.filter((b) => b.borrower_id === null);
+  if (booksToDelete.length === 0) {
+    return next(
+      new HttpError("The book you want to delete is borrowed by an user.", 404)
+    );
+  }
+  console.log(booksToDelete);
+
+  let bookToDelete = booksToDelete[0];
+  await deleteUserBooksByBIDToDB(bookToDelete.id);
+
+  let book = books[0];
+  const bookBody = {
+    title: book.title,
+    isbn: book.isbn,
+    publication_date: book.publication_date,
+    synopsis: book.synopsis,
+    cover_image: book.cover_image,
+    amount: book.amount - 1,
+    language: book.language,
+    genre: book.genre,
+    publisher: book.publisher,
+    author: book.author,
+  };
+  await updateBookByIdToDB(book.id, bookBody);
+
+  res
+    .status(200)
+    .json({ data: book, message: "Deleted UserBooks and Updated Book." });
 };
 
 exports.getBooks = getBooks;
