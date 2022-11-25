@@ -45,6 +45,7 @@ const getMatchingBooks = async (req, res, next) => {
 };
 
 const createBook = async (req, res, next) => {
+  console.log("Getting into create")
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -54,10 +55,10 @@ const createBook = async (req, res, next) => {
 
   let book = await getBookByTitleFromDB(req.body.title);
 
-  if (book.length !== 0) {
-    return next(new HttpError("Book title already exists.", 404));
-  }
-
+  // if (book.length !== 0) {
+  //   return next(new HttpError("Book title already exists.", 404));
+  // }
+  
   book = await getBookByISBNFromDB(req.body.isbn);
 
   if (book.length !== 0) {
@@ -114,6 +115,7 @@ const createBook = async (req, res, next) => {
 };
 
 const updateBook = async (req, res, next) => {
+  console.log("Getting into update")
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return next(
@@ -121,7 +123,45 @@ const updateBook = async (req, res, next) => {
     );
   }
 
-  let book = await updateBookByIdToDB(req.params.bid, req.body);
+  let author = await getAuthorFromDB(req.body.author);
+  let authorData;
+  if (author.length === 0) {
+    let body = { name: req.body.author };
+    authorData = await postAuthorToDB(body);
+  }
+  let authorId = author.length !== 0 ? author[0].id : authorData.id;
+
+  let publisher = await getPublisherFromDB(req.body.publisher);
+  let publisherData;
+  if (publisher.length === 0) {
+    let body = { name: req.body.publisher };
+    publisherData = await postPublisherToDB(body);
+  }
+  let publisherId = publisher.length !== 0 ? publisher[0].id : publisherData.id;
+
+  let genre = await getGenreFromDB(req.body.genre);
+  let genreData;
+  if (genre.length === 0) {
+    let body = { name: req.body.genre };
+    genreData = await postGenreToDB(body);
+  }
+  let genreId = genre.length !== 0 ? genre[0].id : genreData.id;
+
+  const bookBody = {
+    title: req.body.title,
+    isbn: req.body.isbn,
+    publication_date: req.body.publication_date,
+    synopsis: req.body.synopsis,
+    cover_image: req.body.cover_image,
+    amount: req.body.amount,
+    language: req.body.language.toLowerCase(),
+    genre: genreId,
+    publisher: publisherId,
+    author: authorId,
+  };
+
+  console.log("Getting into update with body ->", bookBody)
+  let book = await updateBookByIdToDB(req.params.bid, bookBody);
 
   res.status(200).json({ data: book });
 };
