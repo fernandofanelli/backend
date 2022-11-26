@@ -66,6 +66,16 @@ const getAllUserBooks = async (req, res, next) => {
 };
 
 const orderBook = async (req, res, next) => {
+  let amountOfBooksOrderedByUser = await getUserBooksBorrowedByUIDFromDB(
+    req.body.uid
+  );
+
+  if (amountOfBooksOrderedByUser.length > 4) {
+    return next(
+      new HttpError("User exceeds the amount of books to borrow.", 403)
+    );
+  }
+
   let book = await booksHelper.getBookUsingId(req.body.bid, next);
 
   let userBook = await getBooksAvailableByBIDFromDB(req.body.bid);
