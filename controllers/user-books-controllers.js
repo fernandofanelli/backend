@@ -103,8 +103,6 @@ const returnBook = async (req, res, next) => {
     req.body.uid
   );
 
-  console.log(userBook);
-
   if (!userBook || userBook.length === 0) {
     return next(
       new HttpError("Could not find a book for the provided book id.", 404)

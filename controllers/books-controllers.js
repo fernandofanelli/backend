@@ -1,5 +1,4 @@
 const { validationResult } = require("express-validator");
-
 const HttpError = require("../models/http-error");
 const {
   getBooksFromDB,
@@ -13,21 +12,9 @@ const {
   getUserBooksByUIDAndBIDFromDB,
   deleteUserBooksByBIDToDB,
 } = require("../services/user-books");
-const {
-  getAuthorFromDB,
-  getAuthorByIdFromDB,
-  postAuthorToDB,
-} = require("../services/author");
-const {
-  getPublisherFromDB,
-  getPublisherByIdFromDB,
-  postPublisherToDB,
-} = require("../services/publisher");
-const {
-  getGenreFromDB,
-  getGenreByIdFromDB,
-  postGenreToDB,
-} = require("../services/genre");
+const { getAuthorByIdFromDB } = require("../services/author");
+const { getPublisherByIdFromDB } = require("../services/publisher");
+const { getGenreByIdFromDB } = require("../services/genre");
 const booksHelper = require("./helpers/books");
 const userBooks = require("./helpers/user-books");
 
@@ -76,29 +63,9 @@ const createBook = async (req, res, next) => {
     }
   }
 
-  let author = await getAuthorFromDB(req.body.author);
-  let authorData;
-  if (author.length === 0) {
-    let body = { name: req.body.author };
-    authorData = await postAuthorToDB(body);
-  }
-  let authorId = author.length !== 0 ? author[0].id : authorData.id;
-
-  let publisher = await getPublisherFromDB(req.body.publisher);
-  let publisherData;
-  if (publisher.length === 0) {
-    let body = { name: req.body.publisher };
-    publisherData = await postPublisherToDB(body);
-  }
-  let publisherId = publisher.length !== 0 ? publisher[0].id : publisherData.id;
-
-  let genre = await getGenreFromDB(req.body.genre);
-  let genreData;
-  if (genre.length === 0) {
-    let body = { name: req.body.genre };
-    genreData = await postGenreToDB(body);
-  }
-  let genreId = genre.length !== 0 ? genre[0].id : genreData.id;
+  const genreId = booksHelper.getGenreIdByName(req.body.genre);
+  const publisherId = booksHelper.getPublisherIdByName(req.body.publisher);
+  const authorId = booksHelper.getAuthorIdByName(req.body.author);
 
   let book;
   const bookBody = {
@@ -141,9 +108,28 @@ const updateBook = async (req, res, next) => {
     );
   }
 
-  let book = await updateBookByIdToDB(req.params.bid, req.body);
+  const genreId = booksHelper.getGenreIdByName(req.body.genre);
+  const publisherId = booksHelper.getPublisherIdByName(req.body.publisher);
+  const authorId = booksHelper.getAuthorIdByName(req.body.author);
 
-  res.status(200).json({ data: book });
+  const bookBody = {
+    title: req.body.title,
+    isbn: req.body.isbn,
+    publication_date: req.body.publication_date,
+    synopsis: req.body.synopsis,
+    cover_image: req.body.cover_image,
+    amount: req.body.amount,
+    language: req.body.language.toLowerCase(),
+    genre: genreId,
+    publisher: publisherId,
+    author: authorId,
+  };
+
+  console.log(bookBody);
+
+  let book = await updateBookByIdToDB(req.params.bid, bookBody);
+
+  res.status(202).json({ data: book });
 };
 
 const deleteBook = async (req, res, next) => {
