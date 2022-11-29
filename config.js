@@ -8,7 +8,7 @@ const dataSource = new typeorm.DataSource({
   username: env.DB_USER || "postgres",
   password: env.DB_PASSWORD || "cuvl1234",
   database: env.DB_NAME || "postgres",
-  schema: "project",
+  schema: "tp2_grupo_03",
   synchronize: true,
   //logging: true,
   entities: [
