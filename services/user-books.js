@@ -27,6 +27,12 @@ async function getBooksAvailableByBIDFromDB(book_id) {
   });
 }
 
+async function getUserBooksOwnedByUIDAndBIDFromDB(book_id, user_id) {
+  return await dataSource.getRepository(UserBooks).find({
+    where: { book_id: book_id, user_id: user_id },
+  });
+}
+
 async function getBooksNonAvailableByBIDAndUIDFromDB(book_id, user_id) {
   return await dataSource.getRepository(UserBooks).find({
     where: { book_id: book_id, borrower_id: user_id },
@@ -66,4 +72,5 @@ module.exports = {
   updateUserBooksToDB,
   postUserBooksToDB,
   deleteUserBooksByBIDToDB,
+  getUserBooksOwnedByUIDAndBIDFromDB,
 };

@@ -3,6 +3,7 @@ const booksHelper = require("./helpers/books");
 const {
   getBooksAvailableByBIDFromDB,
   getBooksNonAvailableByBIDAndUIDFromDB,
+  getUserBooksOwnedByUIDAndBIDFromDB,
   getUserBooksBorrowedByUIDFromDB,
   getUserBooksByUIDFromDB,
   getAllUserBooksFromDB,
@@ -69,6 +70,14 @@ const orderBook = async (req, res, next) => {
   let amountOfBooksOrderedByUser = await getUserBooksBorrowedByUIDFromDB(
     req.body.uid
   );
+
+  let bookcCopiesOwned = await getUserBooksOwnedByUIDAndBIDFromDB(req.body.bid, req.body.uid)
+  console.log(bookcCopiesOwned)
+  if (bookcCopiesOwned.length > 0) { //Checks if the asking user has a copy of that book in the system
+    return next(
+      new HttpError("Can't ask for a book which you own a copy", 403)
+    );
+  }
 
   if (amountOfBooksOrderedByUser.length > 4) {
     return next(
