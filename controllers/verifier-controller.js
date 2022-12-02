@@ -28,12 +28,10 @@ const verifyToken = (req, res, next) => {
     
     jwt.verify(bearerHeader, "secretkey", async (err, authData) => {
       req.authData = authData;
-      if (err) {
+      if (err || !compareAuthTokenUIDWithReq( authTokenUID,req)) {
         return next(new HttpError("Invalid token.", 403));
       }
-      else{
-        if(compareAuthTokenUIDWithReq( authTokenUID,req)) next();
-      }
+      else next();
     });
   } else {
     return next(new HttpError("Authentication fail."));
