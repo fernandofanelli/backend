@@ -63,9 +63,11 @@ const createBook = async (req, res, next) => {
     }
   }
 
-  const genreId = booksHelper.getGenreIdByName(req.body.genre);
-  const publisherId = booksHelper.getPublisherIdByName(req.body.publisher);
-  const authorId = booksHelper.getAuthorIdByName(req.body.author);
+  const genreId = await booksHelper.getGenreIdByName(req.body.genre);
+  const publisherId = await booksHelper.getPublisherIdByName(
+    req.body.publisher
+  );
+  const authorId = await booksHelper.getAuthorIdByName(req.body.author);
 
   let book;
   const bookBody = {
@@ -114,16 +116,18 @@ const updateBook = async (req, res, next) => {
 
   let booksIsbn = await getBookByISBNFromDB(req.body.isbn);
   if (booksIsbn.length !== 0) {
-    if (booksIsbn[0].title !== req.body.title) {
+    if (booksIsbn[0].id !== parseInt(req.params.bid)) {
       return next(
         new HttpError("Book isbn already exists, should be unique.", 404)
       );
     }
   }
 
-  const genreId = booksHelper.getGenreIdByName(req.body.genre);
-  const publisherId = booksHelper.getPublisherIdByName(req.body.publisher);
-  const authorId = booksHelper.getAuthorIdByName(req.body.author);
+  const genreId = await booksHelper.getGenreIdByName(req.body.genre);
+  const publisherId = await booksHelper.getPublisherIdByName(
+    req.body.publisher
+  );
+  const authorId = await booksHelper.getAuthorIdByName(req.body.author);
 
   const bookBody = {
     title: req.body.title,
