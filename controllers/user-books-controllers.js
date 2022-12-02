@@ -36,21 +36,19 @@ const getUserBooksBorrowedByUID = async (req, res, next) => {
   let userBooks = await getUserBooksBorrowedByUIDFromDB(req.params.uid);
 
   if (!userBooks || userBooks.length === 0) {
-    return next(
-      new HttpError("Could not find a book for the provided user id.", 404)
+    res.json({ data: [] });
+  } else {
+    let books = [];
+
+    await Promise.all(
+      userBooks.map(async (ub) => {
+        let book = await booksHelper.getBookUsingId(ub.book_id, next);
+        books.push(...book);
+      })
     );
+
+    res.json({ data: books });
   }
-
-  let books = [];
-
-  await Promise.all(
-    userBooks.map(async (ub) => {
-      let book = await booksHelper.getBookUsingId(ub.book_id, next);
-      books.push(...book);
-    })
-  );
-
-  res.json({ data: books });
 };
 
 const getAllUserBooks = async (req, res, next) => {
