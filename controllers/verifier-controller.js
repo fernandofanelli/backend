@@ -18,11 +18,8 @@ const compareAuthTokenUIDWithReq = ( authTokenUID, req) => {
   else{
     uid = authTokenUID;
   }
-  // console.log("uid ->", uid)
-  // console.log("authTokenUID ->", authTokenUID)
   return authTokenUID === uid;
 }
-
 
 const verifyToken = (req, res, next) => {
   const bearerHeader = req.headers["authorization"];
