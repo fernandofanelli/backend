@@ -16,7 +16,7 @@ const compareAuthTokenUIDWithReq = (authTokenUID, req) => {
 };
 
 const verifyToken = (req, res, next) => {
-  const bearerHeader = req.headers["authorization"];
+  const bearerHeader = req.headers["authorization"].replace("Bearer ", "");
   if (typeof bearerHeader !== "undefined" || bearerHeader === "") {
     const authTokenUID = getAuthTokenUID(bearerHeader);
 
