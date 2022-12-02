@@ -87,7 +87,7 @@ const createBook = async (req, res, next) => {
     book = book[0];
   } else book = await postBookToDB(bookBody);
 
-  console.log(book);
+  console.log("Creating Book ->", book);
 
   const userBookBody = {
     user_id: req.body.uid,
@@ -95,9 +95,17 @@ const createBook = async (req, res, next) => {
     borrower_id: null,
     borrowed_date: null,
   };
-  await userBooks.postUserBooks(userBookBody);
+  try {
+    await userBooks.postUserBooks(userBookBody);
 
-  res.status(201).json({ data: book });
+    res.status(201).json({ data: book });
+  } catch (error) {
+    console.log(error);
+    return next(
+      new HttpError("Error while writing DB ->." + error.message, 404)
+    );
+  }
+
 };
 
 const updateBook = async (req, res, next) => {
@@ -125,11 +133,18 @@ const updateBook = async (req, res, next) => {
     author: authorId,
   };
 
-  console.log(bookBody);
+  console.log("Updating book ->",bookBody);
 
-  let book = await updateBookByIdToDB(req.params.bid, bookBody);
+  try {
+    let book = await updateBookByIdToDB(req.params.bid, bookBody);
 
-  res.status(202).json({ data: book });
+    res.status(202).json({ data: book });
+  } catch (error) {
+    console.log(error);
+    return next(
+      new HttpError("Error while writing DB ->." + error.message, 404)
+    );
+  }
 };
 
 const deleteBook = async (req, res, next) => {
