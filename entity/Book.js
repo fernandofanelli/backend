@@ -32,7 +32,7 @@ module.exports = new EntitySchema({
     },
     cover_image: {
       type: "varchar",
-      length: 200,
+      length: 300000,
     },
     amount: {
       type: "int",

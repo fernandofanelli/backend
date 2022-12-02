@@ -87,8 +87,6 @@ const createBook = async (req, res, next) => {
     book = book[0];
   } else book = await postBookToDB(bookBody);
 
-  console.log("Creating Book ->", book);
-
   const userBookBody = {
     user_id: req.body.uid,
     book_id: book.id,
@@ -100,12 +98,10 @@ const createBook = async (req, res, next) => {
 
     res.status(201).json({ data: book });
   } catch (error) {
-    console.log(error);
     return next(
       new HttpError("Error while writing DB ->." + error.message, 404)
     );
   }
-
 };
 
 const updateBook = async (req, res, next) => {
@@ -114,6 +110,15 @@ const updateBook = async (req, res, next) => {
     return next(
       new HttpError("Invalid inputs passed, please check your data.", 422)
     );
+  }
+
+  let booksIsbn = await getBookByISBNFromDB(req.body.isbn);
+  if (booksIsbn.length !== 0) {
+    if (booksIsbn[0].title !== req.body.title) {
+      return next(
+        new HttpError("Book isbn already exists, should be unique.", 404)
+      );
+    }
   }
 
   const genreId = booksHelper.getGenreIdByName(req.body.genre);
@@ -133,14 +138,11 @@ const updateBook = async (req, res, next) => {
     author: authorId,
   };
 
-  console.log("Updating book ->",bookBody);
-
   try {
     let book = await updateBookByIdToDB(req.params.bid, bookBody);
 
     res.status(202).json({ data: book });
   } catch (error) {
-    console.log(error);
     return next(
       new HttpError("Error while writing DB ->." + error.message, 404)
     );
@@ -160,14 +162,12 @@ const deleteBook = async (req, res, next) => {
     req.body.uid
   );
 
-  console.log("Books to delete", booksToDelete);
   booksToDelete = booksToDelete.filter((b) => b.borrower_id === null);
   if (booksToDelete.length === 0) {
     return next(
       new HttpError("The book you want to delete is borrowed by an user.", 404)
     );
   }
-  console.log(booksToDelete);
 
   let bookToDelete = booksToDelete[0];
   await deleteUserBooksByBIDToDB(bookToDelete.id);

@@ -13,7 +13,12 @@ dotenv.config();
 const app = express();
 
 //if you want only your frontend to connect
-app.use(cors({ origin: "http://localhost:3000" }));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PATCH", "DELETE"],
+  })
+);
 
 //app set to only accept json data
 app.use(bodyParser.json());
